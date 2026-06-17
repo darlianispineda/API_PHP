@@ -20,16 +20,22 @@ Este proyecto es una API REST simple desarrollada en PHP puro usando PDO para co
 
 1. Copia el proyecto al directorio raíz de tu servidor local, por ejemplo `c:\xampp\htdocs\api`.
 2. Asegúrate de que MySQL esté ejecutándose.
-3. Edita `config/db.php` si necesitas cambiar los datos de conexión:
+3. Crea un archivo `.env` en la raíz del proyecto con las variables de conexión:
 
-```php
-$host = 'localhost';
-$username = 'root';
-$password = '';
-$dbname = 'post_api';
+```env
+DB_HOST=localhost
+DB_NAME=post_api
+DB_USER=root
+DB_PASS=
 ```
 
-4. Crea la base de datos y las tablas necesarias según tu esquema.
+4. Asegúrate de que `.env` esté ignorado por Git. Ya existe un archivo `.gitignore` con la siguiente regla:
+
+```gitignore
+.env
+```
+
+5. Crea la base de datos y las tablas necesarias según tu esquema.
 
 ## Endpoints disponibles
 

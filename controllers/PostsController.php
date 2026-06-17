@@ -106,14 +106,31 @@ class PostController {
             return;
         }
 
+        // PUT debe recibir el recurso completo
+        if (!isset($input['title']) || trim($input['title']) === '') {
+            http_response_code(400);
+            echo json_encode(['error' => 'El campo "title" es obligatorio y no puede estar vacío.']);
+            return;
+        }
+
+        if (!isset($input['content']) || trim($input['content']) === '') {
+            http_response_code(400);
+            echo json_encode(['error' => 'El campo "content" es obligatorio y no puede estar vacío.']);
+            return;
+        }
+
+        if (!isset($input['status']) || trim($input['status']) === '') {
+            http_response_code(400);
+            echo json_encode(['error' => 'El campo "status" es obligatorio.']);
+            return;
+        }
+
         $allowedStatuses = ['draft', 'published'];
         if (!in_array($input['status'], $allowedStatuses)) {
             http_response_code(422); // Unprocessable Entity (Datos semánticamente incorrectos)
             echo json_encode(['error' => 'El estado enviado no es válido. Valores permitidos: ' . implode(', ', $allowedStatuses)]);
             return;
         }
-
-        // [Omitido por espacio: Aquí irían las mismas validaciones de title, content y status que hicimos en el POST]
 
         try {
             // 2. Ejecutar la actualización
