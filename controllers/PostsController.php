@@ -26,7 +26,7 @@ class PostController {
                 }
 
                 // Si existe, devolvemos solo ese objeto
-                echo json_encode($post);
+                echo json_encode(['data' => $post]);
 
             } else {
                 // Obtener todos los posts
@@ -46,16 +46,11 @@ class PostController {
 
                 $stmt->execute();
                 $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                if (empty($posts)) {
-                    echo json_encode(['message' => 'No hay posts disponibles.']);
-                    return;
-                }
-                echo json_encode($posts);
+                echo json_encode(['data' => $posts]);
             }
         } catch (PDOException $e) {
             http_response_code(500);
-            echo json_encode(['message' => 'Error interno al consultar los datos.']);
+            echo json_encode(['error' => 'Error interno al consultar los datos.']);
         }
         
     }
@@ -104,14 +99,14 @@ class PostController {
 
             // Respuesta exitosa
             http_response_code(201); 
-            echo json_encode(['message' => 'Post creado exitosamente']);
+            echo json_encode(['data' => ['message' => 'Post creado exitosamente']]);
 
         } catch (PDOException $e) {
             // Si la base de datos falla (ej. tabla caída, error de sintaxis interna)
             http_response_code(500); 
             // NOTA: En producción, nunca muestres $e->getMessage() al usuario, ya que revela info del servidor.
             // Solo usa un mensaje genérico y guarda el error en un archivo log.
-            echo json_encode(['message' => 'Error interno del servidor al intentar guardar el post.']);
+            echo json_encode(['error' => 'Error interno del servidor al intentar guardar el post.']);
         }
     }
 
@@ -163,14 +158,14 @@ class PostController {
             // rowCount() nos dice cuántas filas cambiaron en la base de datos
             if ($stmt->rowCount() === 0) {
                 http_response_code(404);
-                echo json_encode(['message' => 'No se encontró el post con el ID provisto o los datos son idénticos.']);
+                echo json_encode(['error' => 'No se encontró el post con el ID provisto o los datos son idénticos.']);
             } else {
-                echo json_encode(['message' => 'Post actualizado exitosamente.']);
+                echo json_encode(['data' => ['message' => 'Post actualizado exitosamente.']]);
             }
 
         } catch (PDOException $e) {
             http_response_code(500);
-            echo json_encode(['message' => 'Error interno al intentar actualizar el post.']);
+            echo json_encode(['error' => 'Error interno al intentar actualizar el post.']);
         }
     }
 
@@ -227,14 +222,14 @@ class PostController {
 
             if ($stmt->rowCount() === 0) {
                 http_response_code(404);
-                echo json_encode(['message' => 'Post no encontrado o los datos enviados son idénticos a los actuales.']);
+                echo json_encode(['error' => 'Post no encontrado o los datos enviados son idénticos a los actuales.']);
             } else {
-                echo json_encode(['message' => 'Post actualizado parcialmente con éxito.']);
+                echo json_encode(['data' => ['message' => 'Post actualizado parcialmente con éxito.']]);
             }
 
         } catch (PDOException $e) {
             http_response_code(500);
-            echo json_encode(['message' => 'Error interno al actualizar.']);
+            echo json_encode(['error' => 'Error interno al actualizar.']);
         }
     }
 
@@ -255,14 +250,14 @@ class PostController {
             // 2. Verificar si el registro existía y fue borrado
             if ($stmt->rowCount() === 0) {
                 http_response_code(404);
-                echo json_encode(['message' => 'No se pudo eliminar. El post con el ID provisto no existe.']);
+                echo json_encode(['error' => 'No se pudo eliminar. El post con el ID provisto no existe.']);
             } else {
-                echo json_encode(['message' => 'Post eliminado exitosamente.']);
+                echo json_encode(['data' => ['message' => 'Post eliminado exitosamente.']]);
             }
 
         } catch (PDOException $e) {
             http_response_code(500);
-            echo json_encode(['message' => 'Error interno al intentar eliminar el post.']);
+            echo json_encode(['error' => 'Error interno al intentar eliminar el post.']);
         }
     }
 }

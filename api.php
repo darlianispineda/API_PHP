@@ -1,6 +1,10 @@
 <?php
 
 header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS');
+
 include 'config/db.php';
 include 'controllers/PostsController.php';
 include 'controllers/CommentController.php'; // 1. Importamos el nuevo controlador
@@ -45,7 +49,21 @@ function verificarAutenticacion() {
 }
 
 $method = $_SERVER['REQUEST_METHOD'];
-$input = json_decode(file_get_contents('php://input'), true); # Decodificamos el JSON recibido en un array asociativo de PHP
+if ($method === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
+
+$rawInput = file_get_contents('php://input');
+$input = null;
+if (trim($rawInput) !== '') {
+    $input = json_decode($rawInput, true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        http_response_code(400);
+        echo json_encode(['error' => 'JSON inválido en el cuerpo de la petición.']);
+        exit;
+    }
+}
 
 $path = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : '/';
 $pathParts = explode('/', trim($path, '/'));

@@ -21,19 +21,15 @@ class CommentController {
                 $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
                 $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
             }
-            
+
             $stmt->bindParam(':post_id', $postId, PDO::PARAM_INT);
             $stmt->execute();
             
             $comments = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            if (empty($comments)) {
-                echo json_encode(['message' => 'No hay comentarios para este post.']);
-                return;
-            }
-            echo json_encode($comments);
+            echo json_encode(['data' => $comments]);
         } catch (PDOException $e) {
             http_response_code(500);
-            echo json_encode(['message' => 'Error al obtener los comentarios.']);
+            echo json_encode(['error' => 'Error al obtener los comentarios.']);
         }
     }
 
@@ -61,10 +57,10 @@ class CommentController {
             $stmt->execute();
 
             http_response_code(201);
-            echo json_encode(['message' => 'Comentario agregado con éxito.']);
+            echo json_encode(['data' => ['message' => 'Comentario agregado con éxito.']]);
         } catch (PDOException $e) {
             http_response_code(500);
-            echo json_encode(['message' => 'Error al guardar el comentario.']);
+            echo json_encode(['error' => 'Error al guardar el comentario.']);
         }
     }
 
@@ -76,14 +72,14 @@ class CommentController {
             $stmt->execute();
 
             if ($stmt->rowCount() > 0) {
-                echo json_encode(['message' => 'Comentario eliminado con éxito.']);
+                echo json_encode(['data' => ['message' => 'Comentario eliminado con éxito.']]);
             } else {
                 http_response_code(404);
                 echo json_encode(['error' => 'Comentario no encontrado.']);
             }
         } catch (PDOException $e) {
             http_response_code(500);
-            echo json_encode(['message' => 'Error al eliminar el comentario.']);
+            echo json_encode(['error' => 'Error al eliminar el comentario.']);
         }
     }
 }

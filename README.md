@@ -20,13 +20,14 @@ Este proyecto es una API REST simple desarrollada en PHP puro usando PDO para co
 
 1. Copia el proyecto al directorio raíz de tu servidor local, por ejemplo `c:\xampp\htdocs\api`.
 2. Asegúrate de que MySQL esté ejecutándose.
-3. Crea un archivo `.env` en la raíz del proyecto con las variables de conexión:
+3. Crea un archivo `.env` en la raíz del proyecto con las variables de conexión y la clave de autorización:
 
 ```env
 DB_HOST=localhost
 DB_NAME=post_api
 DB_USER=root
 DB_PASS=
+API_KEY=mi_token_secreto
 ```
 
 4. Asegúrate de que `.env` esté ignorado por Git. Ya existe un archivo `.gitignore` con la siguiente regla:
@@ -49,6 +50,15 @@ DB_PASS=
 
 - `POST /posts`
   - Crea un nuevo post.
+  - Requiere `Authorization: Bearer [token]`.
+  - Body JSON obligatorio:
+    - `title` (string)
+    - `content` (string)
+    - `status` (string) - valores permitidos: `draft`, `published`
+
+- `PUT /posts/{id}`
+  - Actualiza completamente un post existente.
+  - Requiere `Authorization: Bearer [token]`.
   - Body JSON obligatorio:
     - `title` (string)
     - `content` (string)
@@ -56,10 +66,12 @@ DB_PASS=
 
 - `PATCH /posts/{id}`
   - Actualiza parcialmente un post existente.
+  - Requiere `Authorization: Bearer [token]`.
   - Body JSON con los campos a modificar.
 
 - `DELETE /posts/{id}`
   - Elimina un post por su ID.
+  - Requiere `Authorization: Bearer [token]`.
 
 ### Comentarios
 
@@ -82,6 +94,7 @@ DB_PASS=
 ```bash
 curl -X POST http://localhost/api/posts \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer mi_token_secreto" \
   -d '{"title":"Mi post","content":"Contenido del post","status":"draft"}'
 ```
 
@@ -94,10 +107,13 @@ curl http://localhost/api/posts/5/comments
 ### Eliminar un comentario
 
 ```bash
-curl -X DELETE http://localhost/api/comments/12
+curl -X DELETE http://localhost/api/comments/12 \
+  -H "Authorization: Bearer mi_token_secreto"
 ```
 
 ## Notas
 
 - Las respuestas se devuelven en JSON.
+- En las respuestas exitosas, el recurso o mensaje se encuentra bajo la clave `data`.
+- Los errores se devuelven con la clave `error`.
 - La API devuelve códigos HTTP adecuados para validación y errores.
