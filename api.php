@@ -11,7 +11,7 @@ function verificarAutenticacion() {
 
     // 2. Definir tu clave secreta maestra (En el futuro, esto vendrá de la BD o un archivo .env)
     $api_key_secreta = isset($_ENV['API_KEY']) ? $_ENV['API_KEY'] : null;
-    
+
     // 3. Verificar si viene el encabezado 'Authorization'
     // Nota: Dependiendo del servidor, puede escribirse 'Authorization' o 'authorization'
     $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : (isset($headers['authorization']) ? $headers['authorization'] : null);
@@ -92,9 +92,22 @@ if ($resource === 'comments') {
             exit;
         }
 
+
         switch ($method) {
             case 'GET':
-                $commentController->getCommentsByPost($id);
+            if (isset($_GET['page'])) {
+                $page = (int)$_GET['page'];
+                $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10; // 10 por defecto
+
+                if ($page < 1) $page = 1;
+                if ($limit < 1 || $limit > 100) $limit = 10;
+
+                // Enviamos al método paginado
+                $commentController->getCommentsByPost($id, $page, $limit);
+            } else {
+                // 2. Si no envió 'page', pasamos nulls para indicar que quiere TODO
+                $commentController->getCommentsByPost($id, null, null);
+            }
                 break;
             case 'POST':
                 verificarAutenticacion(); //  Si no hay token válido, aquí muere la petición
@@ -112,7 +125,20 @@ if ($resource === 'comments') {
     if ($subResource === null) {
         switch ($method) {
             case 'GET':
-                $postController->handleGet($id);
+
+                if (isset($_GET['page'])) {
+                    $page = (int)$_GET['page'];
+                    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10; // 10 por defecto
+
+                    if ($page < 1) $page = 1;
+                    if ($limit < 1 || $limit > 100) $limit = 10;
+
+                    // Enviamos al método paginado
+                    $postController->handleGet($id, $page, $limit);
+                } else {
+                    // 2. Si no envió 'page', pasamos nulls para indicar que quiere TODO
+                    $postController->handleGet($id, null, null);
+                }
                 break;
             case 'POST':
                 verificarAutenticacion(); //  Si no hay token válido, aquí muere la petición

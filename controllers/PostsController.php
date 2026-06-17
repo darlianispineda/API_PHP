@@ -8,7 +8,7 @@ class PostController {
         $this->pdo = $pdo;
     }
 
-    public function handleGet( $id) {
+    public function handleGet( $id, $page = null, $limit = null) {
         try{
             if ($id !== null) {
                 $query = "SELECT * FROM posts WHERE id = :id";
@@ -31,9 +31,26 @@ class PostController {
             } else {
                 // Obtener todos los posts
                 $query = "SELECT * FROM posts";
-                    $stmt = $this->pdo->prepare($query);
+
+                if ($page !== null && $limit !== null) {
+                    $offset = ($page - 1) * $limit;
+                    $query .= " LIMIT :limit OFFSET :offset";
+                }
+
+                $stmt = $this->pdo->prepare($query);
+
+                if ($page !== null && $limit !== null) {
+                    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+                    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+                }
+
                 $stmt->execute();
                 $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                if (empty($posts)) {
+                    echo json_encode(['message' => 'No hay posts disponibles.']);
+                    return;
+                }
                 echo json_encode($posts);
             }
         } catch (PDOException $e) {

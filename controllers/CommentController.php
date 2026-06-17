@@ -8,10 +8,20 @@ class CommentController {
     }
 
     // Listar comentarios de un post específico
-    public function getCommentsByPost($postId) {
+    public function getCommentsByPost($postId, $page = null, $limit = null) {
         try {
             $query = "SELECT * FROM comments WHERE post_id = :post_id ORDER BY created_at DESC";
+            if ($page !== null && $limit !== null) {
+                $offset = ($page - 1) * $limit;
+                $query .= " LIMIT :limit OFFSET :offset";
+            }
             $stmt = $this->pdo->prepare($query);
+
+            if ($page !== null && $limit !== null) {
+                $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+                $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+            }
+            
             $stmt->bindParam(':post_id', $postId, PDO::PARAM_INT);
             $stmt->execute();
             
